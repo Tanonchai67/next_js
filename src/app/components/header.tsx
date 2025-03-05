@@ -1,18 +1,16 @@
-import Link from "next/link";
+
 import NavLink from "./nav-link";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/our-team", label: "Our Team" },
-  { href: "/login", label: "Login" },
-  { href: "/register", label: "Register" },
+  { href: "/", label: " Home " },
+  { href: "/login", label: " เข้าสู่ระบบ " },
 ];
 
 export default function Header() {
   return (
-    <header className="bg-white text-black">
+    <header className="bg-black text-white font-bold">
       <nav className="mx-auto flex justify-between items-center py-4 px-6">
-        <Link href="/">Our Cool Project</Link>
+        <a>Non Company</a>
 
         <ul className="flex gap-4">
           {links.map((link) => (
