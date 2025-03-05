@@ -1,51 +1,50 @@
-import qs from "qs";
-
 import { BlockRenderer, TeamPageBlock } from "@/app/components/blocks";
+import { fetchApi } from "@/app/utils/fetch";
+
+interface MemberData<T>{
+    data: T[];
+    meat: {
+        pagination:{
+            page: number;
+            pageSize: number;
+            pageCount: number;
+            total: number;
+        };
+    };
+}
 
 async function getTeamMember(slug: string) {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:1337";
-    const path = "/api/team-members";
-
-    const url = new URL(path, baseUrl);
-
-    url.search = qs.stringify({
-        populate: {
-            photo: {
-                fields: ["alternativeText", "name", "url"],
-            },
-            blocks: {
-                on: {
-                    "blocks.testimonial": {
-                        populate: {
-                            photo: {
-                                fields: ["alternativeText", "name", "url"],
-                            },
+    const res = await fetchApi<MemberData<UserProfile>>("/api/team-members", {}, {
+        photo: {
+            fields: ["alternativeText", "name", "url"],
+        },
+        blocks: {
+            on: {
+                "blocks.testimonial": {
+                    populate: {
+                        photo: {
+                            fields: ["alternativeText", "name", "url"],
                         },
                     },
-                    "blocks.spoiler": {
-                        populate: true,
-                    },
-                    "blocks.rich-text": {
-                        populate: true,
-                    },
                 },
-            },
-        },
-        filters: {
-            slug: {
-                $eq: slug, // This is the slug for our team member
-            },
-        },
-    });
+                "blocks.spoiler": {
+                    populate: true,
+                },
+                "blocks.rich-text": {
+                    populate: true,
+                },
+            }
+        }
+    },
+        { slug: { $eq: slug } });
 
-    const res = await fetch(url);
+    console.log("Filtered Response:", res);
 
-    if (!res.ok) throw new Error("Failed to fetch team members");
+    if (!res?.data?.data) {
+        throw new Error("Invalid API response structure");
+    }
 
-    const data = await res.json();
-    const teamMember = data?.data[0];
-    console.dir(teamMember, { depth: null });
-    return teamMember;
+    return res.data.data.length > 0 ? res.data.data[0] : null;
 }
 
 interface UserProfile {

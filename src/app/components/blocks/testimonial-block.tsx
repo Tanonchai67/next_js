@@ -24,7 +24,7 @@ export function TestimonialBlock({ block }: { block: TestimonialBlock }) {
                 <div className="relative h-64 md:h-full">
                     <Image
                         src={imageUrl}
-                        alt={block.photo.alternativeText || block.authorName}
+                        alt={"Unknown Photo"}
                         width={300}
                         height={300}
                         className="object-center rounded-lg"

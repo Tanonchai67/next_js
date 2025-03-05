@@ -1,52 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import qs from "qs";
+import { fetchApi } from "../utils/fetch";
 
 async function getTeamMembers() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:1337";
-  const path = "/api/team-members";
-
-  const url = new URL(path, baseUrl);
-
-  url.search = qs.stringify({
-    populate: {
+  const res = await fetchApi("/api/team-members",{},{
       photo: {
         fields: ['alternativeText', 'name', 'url']
       },
-      blocks: {
-        on: {
-          'blocks.testimonial': {
-            populate: {
-              photo: {
-                fields: ['alternativeText', 'name', 'url']
-              }
-            }
-          },
-          'blocks.spoiler': {
-            populate: true
-          },
-          'blocks.rich-text': {
-            populate: true
-          }
-        }
-      }
-    },
-    // filters: {
-    //   slug: {
-    //     $eq: "sarah" // This is the slug for our team member
-    //   }
-    // }
-  }//end url
-  );
-
-  const res = await fetch(url);
-
-  if (!res.ok) throw new Error("Failed to fetch team members");
-
-  const data = await res.json();
-  console.log(data);
-
-  return data;
+  });
+  return res.data;
 }
 
 interface TeamMemberProps {
@@ -97,7 +59,7 @@ function TeamMemberCard({
 }
 
 export default async function OurTeam() {
-  const teamMembers = await getTeamMembers();
+  const teamMembers:any = await getTeamMembers();
 
   return (
     <div>

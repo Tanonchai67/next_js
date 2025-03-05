@@ -9,8 +9,8 @@ const links = [
 
 export default function Header() {
   return (
-    <header className="bg-white/50">
-      <nav className="container mx-auto flex justify-between items-center py-4">
+    <header className="bg-white text-black">
+      <nav className="mx-auto flex justify-between items-center py-4 px-6">
         <Link href="/">Our Cool Project</Link>
 
         <ul className="flex gap-4">
