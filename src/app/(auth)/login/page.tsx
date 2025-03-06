@@ -1,6 +1,25 @@
 "use client";
-import { fetchActionApi } from "@/app/utils/action";
+import Input from "@/app/components/material/input";
+import { fetchActionApi, setAccessToken } from "@/app/utils/action";
+import bcrypt from 'bcryptjs';
 import { useState } from "react";
+import Swal from 'sweetalert2';
+
+interface LoginResponse {
+    jwt: string;
+    user: {
+        id: number;
+        documentId: number;
+    }
+}
+
+const hashPassword = async (identifier: string, password: string) => {
+    const salt = await bcrypt.genSalt(10); // สร้าง Salt สำหรับการเข้ารหัส
+    const hashedIdentifer = await bcrypt.hash(identifier, salt);
+    const hashedPassword = await bcrypt.hash(password, salt); // เข้ารหัสรหัสผ่าน
+    const hashUser = hashedIdentifer + ":" + hashedPassword
+    return hashUser;
+};
 
 export default function Login() {
     const [identifier, setIdentifier] = useState("");
@@ -14,14 +33,21 @@ export default function Login() {
         const res = await fetchActionApi("/api/auth/local", {
             method: "POST",
             body: JSON.stringify(body)
-        }
-        )
+        } as any);
+
         if (res) {
             if (res.status == 200) {
-                window.location.href = '/our-team';
+                const token = res.data as LoginResponse
+                await setAccessToken(token.jwt);
+                window.location.href = '/';
                 console.log(res)
-            }else{
-                alert("อีเมล์หรือรหัสผ่านไม่ถูกต้อง!")
+                // setAccessToken(await hashPassword(identifier, password));
+            } else {
+                Swal.fire({
+                    title: "อีเมล์หรือรหัสผ่านไม่ถูกต้อง!",
+                    icon: "error",
+                });
+                // alert("อีเมล์หรือรหัสผ่านไม่ถูกต้อง!")
                 console.log(res)
             }
         }
@@ -35,22 +61,26 @@ export default function Login() {
                     </h1>
                     <form className="space-y-4 md:space-y-6" onSubmit={(e) => login(e)}>
                         <div>
-                            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">อีเมล์</label>
-                            <input type="email" name="identifier" id="identifier"
+                            <Input
+                                type="text"
+                                id="identifier"
                                 value={identifier}
+                                label="อีเมล์"
                                 onChange={(e) => setIdentifier(e.target.value)}
-                                className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="name@gmail.com"
-                                required />
+                                required
+                            />
                         </div>
                         <div>
-                            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">รหัสผ่าน</label>
-                            <input type="password" name="password" id="password"
+                            <Input
+                                type="password"
+                                id="password"
                                 value={password}
+                                label="รหัสผ่าน"
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                required />
+                                required
+                            />
                         </div>
                         <button type="submit" className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">เข้าสู่ระบบ</button>
                         <p className="text-sm font-light text-gray-500 dark:text-gray-400">

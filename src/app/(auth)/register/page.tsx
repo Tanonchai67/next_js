@@ -1,6 +1,7 @@
 "use client";
 import { fetchActionApi } from "@/app/utils/action";
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 export default function Register() {
     const [username, setUsername] = useState("");
@@ -10,7 +11,10 @@ export default function Register() {
     const register = async (e: React.FormEvent) => {
         e.preventDefault();
         if (password !== confirmPassword) {
-            alert("รหัสผ่านไม่ตรงกัน")
+            Swal.fire({
+                title: "รหัสผ่านไม่ตรงกัน",
+                icon: "question",
+            });
             return;
         }
         let body = {
@@ -26,10 +30,16 @@ export default function Register() {
         if (res) {
             if (res.status !== 200) {
                 console.log(res)
-                alert("มีข้อมูลนี้อยู่แล้ว!")
-            }else{
-                alert("สมัครสมาชิกสำเร็จ!")
+                Swal.fire({
+                    title: "มีข้อมูลนี้อยู่แล้ว!",
+                    icon: "error",
+                });
+            } else {
                 console.log(res)
+                Swal.fire({
+                    title: "สมัครสมาชิกสำเร็จ!",
+                    icon: "success",
+                });
             }
         }
     }
